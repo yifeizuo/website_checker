@@ -4,13 +4,17 @@ pip3 install git+https://github.com/yifeizuo/website_checker.git
 ```
 
 ## Run website checker <produce/consume>
+### producer
 ```bash
 KAFKA_BOOTSTRAP_SERVERS="kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924" \
   KAFKA_TOPIC="remote_topic" \
   CHECK_INTERVAL_IN_SECONDS=1 \
   CHECK_URL=https://afun.fi \
   python3 -m website_checker produce
+```
 
+### consumer
+```bash
 KAFKA_BOOTSTRAP_SERVERS="kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924" \
   KAFKA_TOPIC="remote_topic" \
   DB_HOST="pg-2c97f07-yifeizuo-4f83.aivencloud.com" \
