@@ -1,6 +1,6 @@
-from distutils.core import setup
 import os
 import sys
+from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -76,10 +76,8 @@ setup(
         'Documentation': '',
         'Source': 'https://github.com/',
     },
-    entry_points={
-        'console_scripts': [
-            'producer = website_checker.producer:main',
-            'consumer = website_checker.consumer:main',
-        ],
-    }
+    scripts=[
+        'bin/website_checker-produce',
+        'bin/website_checker-consume'
+    ],
 )

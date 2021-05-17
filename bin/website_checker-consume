@@ -1,0 +1,4 @@
+#!/usr/bin/env python
+
+import website_checker
+website_checker.consumer.main()
