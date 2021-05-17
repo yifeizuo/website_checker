@@ -1,15 +1,24 @@
-### producer.py
-
+## Installation
 ```bash
-# optionally you can set env var: CHECK_REGEX="A fun company"
-KAFKA_BOOTSTRAP_SERVERS="kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924" KAFKA_TOPIC="remote_topic" CHECK_INTERVAL_IN_SECONDS=1 CHECK_URL=https://afun.fi python website_checker/producer.py
+pip3 install git+https://github.com/yifeizuo/website_checker.git
 ```
 
-### consumer.py
-
+## Run website checker <produce/consume>
 ```bash
-# optionally env var AGGREGATE_DATA_AS_HOURLY can be set to True to improve DB performance while storing less data 
-KAFKA_BOOTSTRAP_SERVERS="kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924" KAFKA_TOPIC="remote_topic" DB_HOST="pg-2c97f07-yifeizuo-4f83.aivencloud.com" DB_PORT=23922 DB_USER="avnadmin" DB_PASSWORD="xfozw58iztfczvsx" DB_NAME=defaultdb AGGREGATE_DATA_AS_HOURLY=FALSE python website_checker/consumer.py
+KAFKA_BOOTSTRAP_SERVERS="kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924" \
+  KAFKA_TOPIC="remote_topic" \
+  CHECK_INTERVAL_IN_SECONDS=1 \
+  CHECK_URL=https://afun.fi \
+  python3 -m website_checker produce
+
+KAFKA_BOOTSTRAP_SERVERS="kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924" \
+  KAFKA_TOPIC="remote_topic" \
+  DB_HOST="pg-2c97f07-yifeizuo-4f83.aivencloud.com" \
+  DB_PORT=23922 \
+  DB_USER="avnadmin" \
+  DB_PASSWORD="xfozw58iztfczvsx" \
+  DB_NAME=defaultdb \
+  python3 -m website_checker consume
 ```
 
 ### Attribution:
@@ -38,3 +47,18 @@ KAFKA_BOOTSTRAP_SERVERS="kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924" KAFK
    - [ ] SSL cert file valut
 - [ ] Docker SSL Config
    - [x] Docker setup works with first commit in this repo, without SSL
+
+## Run from source (with additional configs explained)
+### producer.py
+
+```bash
+# optionally you can set env var: CHECK_REGEX="A fun company"
+KAFKA_BOOTSTRAP_SERVERS="kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924" KAFKA_TOPIC="remote_topic" CHECK_INTERVAL_IN_SECONDS=1 CHECK_URL=https://afun.fi python website_checker/producer.py
+```
+
+### consumer.py
+
+```bash
+# optionally env var AGGREGATE_DATA_AS_HOURLY can be set to True to improve DB performance while storing less data 
+KAFKA_BOOTSTRAP_SERVERS="kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924" KAFKA_TOPIC="remote_topic" DB_HOST="pg-2c97f07-yifeizuo-4f83.aivencloud.com" DB_PORT=23922 DB_USER="avnadmin" DB_PASSWORD="xfozw58iztfczvsx" DB_NAME=defaultdb AGGREGATE_DATA_AS_HOURLY=FALSE python website_checker/consumer.py
+```
