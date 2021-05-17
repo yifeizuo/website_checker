@@ -30,7 +30,7 @@ class DbWriter(object):
                  db_port: str = os.getenv("DB_PORT", "5432"),
                  db_name: str = os.getenv("DB_NAME", "my_db"),
                  db_user: str = os.getenv("DB_USER", "my_user"),
-                 db_password: str = os.getenv("DB_PASSWORD")) -> None:
+                 db_password: str = os.getenv("DB_PASSWORD", "my_password")) -> None:
         self.conn = psycopg2.connect(
             host=db_host,
             port=int(db_port),
@@ -86,7 +86,7 @@ class DbWriter(object):
 
 class WebsiteCheckResultConsumer(object):
     def __init__(self, db_writer: DbWriter,
-                 topic: str = os.getenv("KAFKA_TOPIC", "remote_topic"),
+                 topic: str = os.getenv("KAFKA_TOPIC", "example-topic"),
                  enable_aggregate_data_as_hourly: bool = bool(os.getenv("AGGREGATE_DATA_AS_HOURLY", False))) -> None:
         self.topic = topic
         self.enable_aggregate_data_as_hourly = enable_aggregate_data_as_hourly
@@ -96,7 +96,7 @@ class WebsiteCheckResultConsumer(object):
             group_id="aiven",
             client_id=socket.gethostname(),
             auto_offset_reset='earliest',
-            bootstrap_servers=os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924"),
+            bootstrap_servers=os.getenv("KAFKA_BOOTSTRAP_SERVERS", "example-server"),
             security_protocol="SSL",
             ssl_cafile=os.path.abspath(os.path.join(CURRENT_PATH, '..', 'ssl', 'ca.pem')),
             ssl_certfile=os.path.abspath(os.path.join(CURRENT_PATH, '..', 'ssl', 'service.cert')),
@@ -127,14 +127,18 @@ class WebsiteCheckResultConsumer(object):
 
 
 def main():
+    consumer = None
     try:
-        consumer: WebsiteCheckResultConsumer = WebsiteCheckResultConsumer(DbWriter())
+        consumer = WebsiteCheckResultConsumer(DbWriter())
         consumer.consume_loop()
     except Exception as err:
         logger.error("Exception raised {}.".format(err))
         raise err
-    else:
-        consumer.close()
+    except KeyboardInterrupt:
+        logger.info("Exiting...")
+    finally:
+        if consumer:
+            consumer.close()
 
 
 if __name__ == "__main__":

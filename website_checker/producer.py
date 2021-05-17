@@ -28,11 +28,11 @@ CURRENT_PATH = os.path.dirname(__file__)
 
 class WebsiteChecker(object):
     def __init__(self,
-                 topic: str = os.getenv("KAFKA_TOPIC", "remote_topic"),
+                 topic: str = os.getenv("KAFKA_TOPIC", "example-topic"),
                  check_interval_in_seconds: str = os.getenv("CHECK_INTERVAL_IN_SECONDS", "5"),
-                 check_url: str = os.getenv("CHECK_URL", "https://www.afun.fi"),
-                 check_regex: str = os.getenv("CHECK_REGEX", "A fun company"),
-                 bootstrap_servers: str = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924")):
+                 check_url: str = os.getenv("CHECK_URL", "https://www.example-url"),
+                 check_regex: str = os.getenv("CHECK_REGEX"),
+                 bootstrap_servers: str = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "example-host:1234")):
         self.topic = topic
         self.check_interval_in_seconds = int(check_interval_in_seconds)
         self.check_url = check_url
@@ -90,7 +90,15 @@ class WebsiteChecker(object):
 
 
 def main():
-    WebsiteChecker().loop_checker()
+    website_checker = None
+    try:
+        website_checker = WebsiteChecker()
+        website_checker.loop_checker()
+    except KeyboardInterrupt:
+        logger.info("Exiting...")
+    finally:
+        if website_checker:
+            website_checker.producer.close()
 
 
 if __name__ == "__main__":

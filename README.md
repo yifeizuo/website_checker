@@ -1,26 +1,15 @@
 ### producer.py
 
 ```bash
-export KAFKA_BOOTSTRAP_SERVERS="example-host:1234"
-export KAFKA_TOPIC="example-topic"
-export CHECK_INTERVAL_IN_SECONDS=5
-export CHECK_URL=https://afun.fi
-
-python producer.py
+# optionally you can set env var: CHECK_REGEX="A fun company"
+KAFKA_BOOTSTRAP_SERVERS="kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924" KAFKA_TOPIC="remote_topic" CHECK_INTERVAL_IN_SECONDS=1 CHECK_URL=https://afun.fi python website_checker/producer.py
 ```
 
 ### consumer.py
 
 ```bash
-export KAFKA_BOOTSTRAP_SERVERS="example-host:1234"
-export KAFKA_TOPIC="example-topic"
-export DB_HOST="postgres"
-export DB_PORT=5432
-export DB_USER="my_user"
-export DB_PASSWORD="securepassword"
-export AGGREGATE_DATA_AS_HOURLY=FALSE
-
-python consumer.py
+# optionally env var AGGREGATE_DATA_AS_HOURLY can be set to True to improve DB performance while storing less data 
+KAFKA_BOOTSTRAP_SERVERS="kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924" KAFKA_TOPIC="remote_topic" DB_HOST="pg-2c97f07-yifeizuo-4f83.aivencloud.com" DB_PORT=23922 DB_USER="avnadmin" DB_PASSWORD="xfozw58iztfczvsx" DB_NAME=defaultdb AGGREGATE_DATA_AS_HOURLY=FALSE python website_checker/consumer.py
 ```
 
 ### Attribution:
@@ -31,15 +20,15 @@ python consumer.py
 - https://www.confluent.io/blog/kafka-listeners-explained/
 - https://github.com/dpkp/kafka-python
 
-
-
-
-TODO:
-[x] Linting
-[x] Test +  Coverage
+### TODO:
+- [x] Linting
+- [ ] Test +  Coverage
    - Not 100% coverage, add 1 test for producer.py as an example
-[x] Docstring
-[] Github Actions
-[] Packaging 
-[] README
-[] Aiven credential
+- [x] Docstring
+- [x] Github Actions
+- [ ] Packaging 
+- [X] README
+- [X] Aiven credential
+   - credentials to connect Aiven Kafka and PostgreSQL service are vaulted using github repository variables 
+
+
