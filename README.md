@@ -25,17 +25,14 @@ KAFKA_BOOTSTRAP_SERVERS="kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924" \
   python3 -m website_checker consume
 ```
 
-### Attribution:
-- https://docs.github.com/en/actions/guides/building-and-testing-python
-- https://docs.docker.com/compose/
-- https://github.com/bitnami/bitnami-docker-kafka
-- https://help.aiven.io/en/articles/489572-getting-started-with-aiven-for-apache-kafka
-- https://www.confluent.io/blog/kafka-listeners-explained/
-- https://github.com/dpkp/kafka-python
-- https://github.com/psf/requests
-- https://pipxproject.github.io/pipx/how-pipx-works/#developing-for-pipx
+## Trade-Off --> Automation vs Credentials vaulting
+- To make the solution with the highest level of automation for the users to build and run the applications,
+the environment variables without vaulting needs to be exposed.
+Considering that the credits associated are limited ($300 1 month free trial), the risks are acceptable.
 
-### TODO:
+- If security is more of a concern, senstitive credential values can be offline shared while avoiding being explicitly exposed in the repo.
+
+## Considerations:
 - [x] Linting
    - [x] flake8 
 - [x] Test +  Coverage
@@ -45,12 +42,14 @@ KAFKA_BOOTSTRAP_SERVERS="kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924" \
 - [x] Github Actions enabled **CI/CD pipine**
 - [x] Packaging 
 - [X] README
+   - [x] Attribution 
 - [X] Aiven credential
    - [x] credentials to connect Aiven Kafka and PostgreSQL service are vaulted using github repository variables 
    - [ ] Apply the credentials CI/CD pipeline
    - [ ] SSL cert file valut
-- [ ] Docker SSL Config
+- [X] Docker setup
    - [x] Docker setup works with first commit in this repo, without SSL
+   - [ ] Docker with SSL config
 
 ## Run from source (with additional configs explained)
 ### producer.py
@@ -66,3 +65,13 @@ KAFKA_BOOTSTRAP_SERVERS="kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924" KAFK
 # optionally env var AGGREGATE_DATA_AS_HOURLY can be set to True to improve DB performance while storing less data 
 KAFKA_BOOTSTRAP_SERVERS="kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924" KAFKA_TOPIC="remote_topic" DB_HOST="pg-2c97f07-yifeizuo-4f83.aivencloud.com" DB_PORT=23922 DB_USER="avnadmin" DB_PASSWORD="xfozw58iztfczvsx" DB_NAME=defaultdb AGGREGATE_DATA_AS_HOURLY=FALSE python website_checker/consumer.py
 ```
+
+## Attribution:
+- https://docs.github.com/en/actions/guides/building-and-testing-python
+- https://docs.docker.com/compose/
+- https://github.com/bitnami/bitnami-docker-kafka
+- https://help.aiven.io/en/articles/489572-getting-started-with-aiven-for-apache-kafka
+- https://www.confluent.io/blog/kafka-listeners-explained/
+- https://github.com/dpkp/kafka-python
+- https://github.com/psf/requests
+- https://pipxproject.github.io/pipx/how-pipx-works/#developing-for-pipx
