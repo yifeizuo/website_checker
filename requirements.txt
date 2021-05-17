@@ -3,3 +3,4 @@ fire==0.4.0
 confluent-kafka==1.7.0
 psycopg2-binary==2.8.6
 kafka-python==2.0.2
+flake8==3.9.2

@@ -15,11 +15,11 @@
 from __future__ import annotations
 from datetime import datetime
 import json
-from socket import IPV6_RTHDR_TYPE_0
+
 
 class WebsiteCheckResult(object):
-    def __init__(self, status_code: int, response_time: float, 
-                 response_data_regex: str = None, is_regex_matched: bool = None, 
+    def __init__(self, status_code: int, response_time: float,
+                 response_data_regex: str = None, is_regex_matched: bool = None,
                  check_timestamp: datetime = datetime.utcnow()):
         self.status_code = status_code
         self.response_time = response_time
@@ -29,7 +29,7 @@ class WebsiteCheckResult(object):
 
     def serialize(self) -> bytes:
         return json.dumps(self.result()).encode()
-    
+
     @staticmethod
     def deserialize(result_bytes: bytes) -> WebsiteCheckResult:
         result_json = json.loads(result_bytes.decode())
@@ -48,12 +48,12 @@ class WebsiteCheckResult(object):
                 and self.response_time != -1.0
 
     def result(self) -> dict:
-        """Result content to be inspected. 
+        """Result content to be inspected.
 
         Returns:
             dict: Content of the website check result
         """
-        
+
         return {
             "status_code": str(self.status_code),
             "response_time": str(self.response_time),

@@ -23,6 +23,7 @@ logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 logger = logging.getLogger("consumer")
 CURRENT_PATH = os.path.dirname(__file__)
 
+
 class DbWriter(object):
     def __init__(self,
                  db_host: str = os.getenv("DB_HOST", "localhost"),
@@ -37,8 +38,7 @@ class DbWriter(object):
             user=db_user,
             password=db_password,
         )
-        logger.info("Connected to DB host:{}, port:{}, name:{}, user:{}"
-            .format(db_host, db_port, db_name, db_user))
+        logger.info("Connected to DB host:{}, port:{}, name:{}, user:{}".format(db_host, db_port, db_name, db_user))
 
         self.cur = self.conn.cursor()
         self.cur.execute(
@@ -53,13 +53,13 @@ class DbWriter(object):
             """)
         self.conn.commit()
 
-    def insert_data(self, result: WebsiteCheckResult, enable_aggregate_data_as_hourly : bool) -> None:
+    def insert_data(self, result: WebsiteCheckResult, enable_aggregate_data_as_hourly: bool) -> None:
         if enable_aggregate_data_as_hourly:
             # check_timestamp is stripped to floored hour to be aggregated
             check_timestamp = result.check_timestamp.replace(minute=0, second=0, microsecond=0)
         else:
             check_timestamp = result.check_timestamp
-        
+
         self.cur.execute(
             """
             INSERT INTO website_checker_result (check_timestamp, response_time, status_code, response_data_regex, is_regex_matched)
@@ -69,9 +69,9 @@ class DbWriter(object):
             """,
             {
                 'check_timestamp': check_timestamp,
-                'response_time': result.response_time, 
-                'status_code': result.status_code, 
-                'response_data_regex': result.response_data_regex, 
+                'response_time': result.response_time,
+                'status_code': result.status_code,
+                'response_data_regex': result.response_data_regex,
                 'is_regex_matched': result.is_regex_matched
             }
         )
@@ -98,11 +98,11 @@ class WebsiteCheckResultConsumer(object):
             auto_offset_reset='earliest',
             bootstrap_servers=os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924"),
             security_protocol="SSL",
-            ssl_cafile=os.path.abspath(os.path.join(CURRENT_PATH, '..','ssl','ca.pem')),
-            ssl_certfile=os.path.abspath(os.path.join(CURRENT_PATH, '..','ssl','service.cert')),
-            ssl_keyfile=os.path.abspath(os.path.join(CURRENT_PATH, '..','ssl','service.key')),
+            ssl_cafile=os.path.abspath(os.path.join(CURRENT_PATH, '..', 'ssl', 'ca.pem')),
+            ssl_certfile=os.path.abspath(os.path.join(CURRENT_PATH, '..', 'ssl', 'service.cert')),
+            ssl_keyfile=os.path.abspath(os.path.join(CURRENT_PATH, '..', 'ssl', 'service.key')),
         )
-    
+
     def consume_loop(self) -> None:
         self.consumer.subscribe([self.topic])
 
@@ -120,7 +120,7 @@ class WebsiteCheckResultConsumer(object):
                         self.db_writer.insert_data(received_result, self.enable_aggregate_data_as_hourly)
                     else:
                         logger.warning('Received message is unrecognised. {}. Topic: {}.'.format(msg.value.decode(), topic))
-    
+
     def close(self) -> None:
         self.consumer.close()
         self.db_writer.close_db_connection()

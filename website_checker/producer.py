@@ -25,6 +25,7 @@ logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 logger = logging.getLogger("producer")
 CURRENT_PATH = os.path.dirname(__file__)
 
+
 class WebsiteChecker(object):
     def __init__(self,
                  topic: str = os.getenv("KAFKA_TOPIC", "remote_topic"),
@@ -40,10 +41,9 @@ class WebsiteChecker(object):
         self.producer = KafkaProducer(
             bootstrap_servers=bootstrap_servers,
             security_protocol="SSL",
-            ssl_cafile=os.path.abspath(os.path.join(CURRENT_PATH, '..','ssl','ca.pem')),
-            ssl_certfile=os.path.abspath(os.path.join(CURRENT_PATH, '..','ssl','service.cert')),
-            ssl_keyfile=os.path.abspath(os.path.join(CURRENT_PATH, '..','ssl','service.key')),
-        )
+            ssl_cafile=os.path.abspath(os.path.join(CURRENT_PATH, '..', 'ssl', 'ca.pem')),
+            ssl_certfile=os.path.abspath(os.path.join(CURRENT_PATH, '..', 'ssl', 'service.cert')),
+            ssl_keyfile=os.path.abspath(os.path.join(CURRENT_PATH, '..', 'ssl', 'service.key')))
         logger.info("Connected to kafka.")
 
     def check(self) -> Optional[WebsiteCheckResult]:
@@ -51,7 +51,7 @@ class WebsiteChecker(object):
 
         Returns:
             Optional[WebsiteCheckResult]: Website check result, otherwise None if there's an error
-        """        
+        """
 
         try:
             response = requests.get(self.check_url)
@@ -71,8 +71,8 @@ class WebsiteChecker(object):
             logger.error("Error raised {}.".format(error))
             return None
 
-    def loop_checker(self):
-        """Periodically conduct checking the website. Wait specified interval in between loops."""        
+    def loop_checker(self) -> None:
+        """Periodically conduct checking the website. Wait specified interval in between loops."""
 
         while True:
             try:
@@ -89,7 +89,7 @@ class WebsiteChecker(object):
                 sleep(self.check_interval_in_seconds)
 
 
-def main():    
+def main():
     WebsiteChecker().loop_checker()
 
 
