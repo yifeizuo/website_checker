@@ -1,6 +1,6 @@
-from distutils.core import setup
 import os
 import sys
+from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -73,7 +73,10 @@ setup(
     cmdclass={'test': PyTest},
     tests_require=test_requirements,
     project_urls={
-        'Documentation': '',
-        'Source': 'https://github.com/',
+        'Source': 'https://github.com/yifeizuo/website_checker',
     },
+    scripts=[
+        'bin/website_checker-produce',
+        'bin/website_checker-consume'
+    ],
 )
