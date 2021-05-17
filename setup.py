@@ -73,8 +73,7 @@ setup(
     cmdclass={'test': PyTest},
     tests_require=test_requirements,
     project_urls={
-        'Documentation': '',
-        'Source': 'https://github.com/',
+        'Source': 'https://github.com/yifeizuo/website_checker',
     },
     scripts=[
         'bin/website_checker-produce',
