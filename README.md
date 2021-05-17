@@ -19,16 +19,21 @@ KAFKA_BOOTSTRAP_SERVERS="kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924" KAFK
 - https://help.aiven.io/en/articles/489572-getting-started-with-aiven-for-apache-kafka
 - https://www.confluent.io/blog/kafka-listeners-explained/
 - https://github.com/dpkp/kafka-python
+- https://github.com/psf/requests
 
 ### TODO:
 - [x] Linting
-- [ ] Test +  Coverage
-   - Not 100% coverage, add 1 test for producer.py as an example
+   - [x] flake8 
+- [x] Test +  Coverage
+   - [x] Not 100% coverage, add 1 test for producer.py as an example
+   - [ ] Improve coverage
 - [x] Docstring
-- [x] Github Actions
-- [ ] Packaging 
+- [x] Github Actions enabled **CI/CD pipine**
+- [x] Packaging 
 - [X] README
 - [X] Aiven credential
-   - credentials to connect Aiven Kafka and PostgreSQL service are vaulted using github repository variables 
-
-
+   - [x] credentials to connect Aiven Kafka and PostgreSQL service are vaulted using github repository variables 
+   - [ ] Apply the credentials CI/CD pipeline
+   - [ ] SSL cert file valut
+- [ ] Docker SSL Config
+   - [x] Docker setup works with first commit in this repo, without SSL
