@@ -76,4 +76,10 @@ setup(
         'Documentation': '',
         'Source': 'https://github.com/',
     },
+    entry_points={
+        'console_scripts': [
+            'producer = website_checker.producer:main',
+            'consumer = website_checker.consumer:main',
+        ],
+    }
 )

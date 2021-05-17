@@ -20,6 +20,7 @@ KAFKA_BOOTSTRAP_SERVERS="kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924" KAFK
 - https://www.confluent.io/blog/kafka-listeners-explained/
 - https://github.com/dpkp/kafka-python
 - https://github.com/psf/requests
+- https://pipxproject.github.io/pipx/how-pipx-works/#developing-for-pipx
 
 ### TODO:
 - [x] Linting
