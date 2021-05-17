@@ -5,3 +5,5 @@ psycopg2-binary==2.8.6
 kafka-python==2.0.2
 flake8==3.9.2
 pytest>=6.2.4
+requests-mock==1.9.2
+pytest-cov==2.12.0

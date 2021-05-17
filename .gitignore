@@ -5,3 +5,5 @@
 *.egg
 website_checker.egg-info/
 dist
+.coverage
+build

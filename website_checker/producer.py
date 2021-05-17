@@ -19,24 +19,18 @@ import requests
 import os
 import logging
 import re
-from result import WebsiteCheckResult
+from website_checker.result import WebsiteCheckResult
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 logger = logging.getLogger("producer")
 CURRENT_PATH = os.path.dirname(__file__)
 
 
-class WebsiteChecker(object):
+class Producer(object):
     def __init__(self,
                  topic: str = os.getenv("KAFKA_TOPIC", "example-topic"),
-                 check_interval_in_seconds: str = os.getenv("CHECK_INTERVAL_IN_SECONDS", "5"),
-                 check_url: str = os.getenv("CHECK_URL", "https://www.example-url"),
-                 check_regex: str = os.getenv("CHECK_REGEX"),
-                 bootstrap_servers: str = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "example-host:1234")):
+                 bootstrap_servers: str = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "example-host:1234")) -> None:
         self.topic = topic
-        self.check_interval_in_seconds = int(check_interval_in_seconds)
-        self.check_url = check_url
-        self.check_regex = check_regex
 
         self.producer = KafkaProducer(
             bootstrap_servers=bootstrap_servers,
@@ -45,6 +39,25 @@ class WebsiteChecker(object):
             ssl_certfile=os.path.abspath(os.path.join(CURRENT_PATH, '..', 'ssl', 'service.cert')),
             ssl_keyfile=os.path.abspath(os.path.join(CURRENT_PATH, '..', 'ssl', 'service.key')))
         logger.info("Connected to kafka.")
+
+    def send(self, value: bytes) -> None:
+        self.producer.send(self.topic, value=value).get(timeout=60)
+        logger.info("Produced result to topic: {}.".format(self.topic))
+
+    def close(self) -> None:
+        self.producer.close()
+
+
+class WebsiteChecker(object):
+    def __init__(self,
+                 producer: Producer,
+                 check_interval_in_seconds: str = os.getenv("CHECK_INTERVAL_IN_SECONDS", "5"),
+                 check_url: str = os.getenv("CHECK_URL", "https://www.example-url"),
+                 check_regex: str = os.getenv("CHECK_REGEX")):
+        self.check_interval_in_seconds = int(check_interval_in_seconds)
+        self.check_url = check_url
+        self.check_regex = check_regex
+        self.producer = producer
 
     def check(self) -> Optional[WebsiteCheckResult]:
         """Check the website once and return the result we're interested in.
@@ -79,8 +92,7 @@ class WebsiteChecker(object):
                 result: Optional[WebsiteCheckResult] = self.check()
                 if result is not None:
                     logger.info("Check result: {}.".format(result.result()))
-                    self.producer.send(self.topic, value=result.serialize()).get(timeout=60)
-                    logger.info("Produced result to topic: {}.".format(self.topic))
+                    self.producer.send(result.serialize())
                 else:
                     logger.warning("TODO: Skipped sending data to kafka.")
             except Exception as error:
@@ -88,17 +100,20 @@ class WebsiteChecker(object):
             finally:
                 sleep(self.check_interval_in_seconds)
 
+    def close(self) -> None:
+        self.producer.close()
+
 
 def main():
     website_checker = None
     try:
-        website_checker = WebsiteChecker()
+        website_checker = WebsiteChecker(Producer())
         website_checker.loop_checker()
     except KeyboardInterrupt:
         logger.info("Exiting...")
     finally:
         if website_checker:
-            website_checker.producer.close()
+            website_checker.close()
 
 
 if __name__ == "__main__":
