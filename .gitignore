@@ -2,3 +2,6 @@
 .vscode/
 .DS_Store
 *.pyc
+*.egg
+website_checker.egg-info/
+dist
