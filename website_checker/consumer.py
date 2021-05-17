@@ -15,18 +15,13 @@
 import logging
 import os
 import psycopg2
-from confluent_kafka import Consumer
+import socket
+from kafka import KafkaConsumer
 from result import WebsiteCheckResult
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 logger = logging.getLogger("consumer")
-
-KAFKA_CONFIG = {
-    'bootstrap.servers': os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:29092"),
-    'group.id': "aiven",
-    # https://docs.confluent.io/platform/current/installation/configuration/consumer-configs.html#consumerconfigs_auto.offset.reset
-    'auto.offset.reset': 'earliest'
-}
+CURRENT_PATH = os.path.dirname(__file__)
 
 class DbWriter(object):
     def __init__(self,
@@ -91,32 +86,40 @@ class DbWriter(object):
 
 class WebsiteCheckResultConsumer(object):
     def __init__(self, db_writer: DbWriter,
-                 topic: str = os.getenv("KAFKA_TOPIC", "my_topic"),
+                 topic: str = os.getenv("KAFKA_TOPIC", "remote_topic"),
                  enable_aggregate_data_as_hourly: bool = bool(os.getenv("AGGREGATE_DATA_AS_HOURLY", False))) -> None:
         self.topic = topic
         self.enable_aggregate_data_as_hourly = enable_aggregate_data_as_hourly
         self.db_writer = db_writer
-        self.consumer = Consumer(KAFKA_CONFIG)
+        self.consumer = KafkaConsumer(
+            self.topic,
+            group_id="aiven",
+            client_id=socket.gethostname(),
+            auto_offset_reset='earliest',
+            bootstrap_servers=os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka-348471e1-yifeizuo-4f83.aivencloud.com:23924"),
+            security_protocol="SSL",
+            ssl_cafile=os.path.abspath(os.path.join(CURRENT_PATH, '..','ssl','ca.pem')),
+            ssl_certfile=os.path.abspath(os.path.join(CURRENT_PATH, '..','ssl','service.cert')),
+            ssl_keyfile=os.path.abspath(os.path.join(CURRENT_PATH, '..','ssl','service.key')),
+        )
     
     def consume_loop(self) -> None:
         self.consumer.subscribe([self.topic])
 
         while True:
-            msg = self.consumer.poll(1.0)
+            raw_messages = self.consumer.poll(timeout_ms=1000)
 
-            if msg is None:
-                logger.info("No message.")
-                continue
-            if msg.error():
-                logger.error("Consumer error: {}.".format(msg.error()))
-                continue
-
-            received_result: WebsiteCheckResult = WebsiteCheckResult.deserialize(msg.value())
-            if received_result.is_valid():
-                logger.info('Received message: {}.'.format(received_result.result()))
-                self.db_writer.insert_data(received_result, self.enable_aggregate_data_as_hourly)
-            else:
-                logger.warning('Received message is unrecognised. {}'.format(msg.value().decode()))
+            for topic, msgs in raw_messages.items():
+                if len(msgs) == 0:
+                    logger.info("No message from topic {}.".format(topic))
+                    continue
+                for msg in msgs:
+                    received_result: WebsiteCheckResult = WebsiteCheckResult.deserialize(msg.value)
+                    if received_result.is_valid():
+                        logger.info('Received message: {} from topic {}.'.format(received_result.result(), topic))
+                        self.db_writer.insert_data(received_result, self.enable_aggregate_data_as_hourly)
+                    else:
+                        logger.warning('Received message is unrecognised. {}. Topic: {}.'.format(msg.value.decode(), topic))
     
     def close(self) -> None:
         self.consumer.close()
