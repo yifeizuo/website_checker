@@ -41,7 +41,9 @@ requires = [
 ]
 
 test_requirements = [
-
+    'pytest>=6.2.4',
+    'requests-mock==1.9.2',
+    'pytest-cov==2.12.0'
 ]
 
 setup(
